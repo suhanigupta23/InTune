@@ -47,7 +47,7 @@ async function request<T>(path: string, body: unknown): Promise<T> {
     body: JSON.stringify(body)
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(data.msg || "Request failed");
+  if (!res.ok) throw new Error(data.err || data.msg || "Request failed");
   return data as T;
 }
 
