@@ -59,8 +59,10 @@ const Dashboard = () => {
           return;
         }
 
+        const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api";
+
         // 1. Fetch user profile
-        const profileRes = await fetch("http://localhost:5001/api/auth/me", {
+        const profileRes = await fetch(`${API_BASE}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!profileRes.ok) {
@@ -75,7 +77,7 @@ const Dashboard = () => {
         setProfile(profileData);
 
         // 2. Fetch matches/chats list
-        const matchesRes = await fetch("http://localhost:5001/api/auth/matches", {
+        const matchesRes = await fetch(`${API_BASE}/auth/matches`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (matchesRes.ok) {
@@ -84,7 +86,7 @@ const Dashboard = () => {
         }
 
         // 3. Fetch active chats count
-        const chatsCountRes = await fetch("http://localhost:5001/api/auth/chats/count", {
+        const chatsCountRes = await fetch(`${API_BASE}/auth/chats/count`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (chatsCountRes.ok) {

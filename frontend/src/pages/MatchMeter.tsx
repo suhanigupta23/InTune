@@ -118,8 +118,10 @@ const MatchMeter = () => {
           return;
         }
 
+        const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api";
+
         // Fetch User Info
-        const meRes = await fetch("http://localhost:5001/api/auth/me", {
+        const meRes = await fetch(`${API_BASE}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!meRes.ok) throw new Error("Failed to fetch user info");
@@ -127,7 +129,7 @@ const MatchMeter = () => {
         setUserVibeText(meData.vibeText || "");
 
         // Fetch Candidates
-        const candRes = await fetch("http://localhost:5001/api/auth/candidates", {
+        const candRes = await fetch(`${API_BASE}/auth/candidates`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!candRes.ok) throw new Error("Failed to fetch candidates");
@@ -193,7 +195,8 @@ const MatchMeter = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await fetch("http://localhost:5001/api/auth/like", {
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api";
+      await fetch(`${API_BASE}/auth/like`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

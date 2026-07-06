@@ -83,7 +83,8 @@ const VoiceMatchSection = () => {
     }
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5001/api/auth/profile", {
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api";
+      const res = await fetch(`${API_BASE}/auth/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

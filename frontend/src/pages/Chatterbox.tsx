@@ -118,8 +118,10 @@ const Chatterbox = () => {
           return;
         }
 
+        const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api";
+
         // 1. Get current user profile
-        const meRes = await fetch("http://localhost:5001/api/auth/me", {
+        const meRes = await fetch(`${API_BASE}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!meRes.ok) throw new Error("Failed to get profile");
@@ -127,7 +129,7 @@ const Chatterbox = () => {
         setCurrentUser(meData);
 
         // 2. Fetch candidates list, score, sort, and slice to TOP 4
-        const candRes = await fetch("http://localhost:5001/api/auth/candidates", {
+        const candRes = await fetch(`${API_BASE}/auth/candidates`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -144,7 +146,7 @@ const Chatterbox = () => {
           const top4Candidates = scored.slice(0, 4);
 
           // Get match swipe statuses to check if names should be revealed
-          const matchesRes = await fetch("http://localhost:5001/api/auth/matches", {
+          const matchesRes = await fetch(`${API_BASE}/auth/matches`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           let matchesData: any[] = [];
@@ -172,8 +174,8 @@ const Chatterbox = () => {
         }
 
         // 3. Fetch specific recipient messages if recipientId exists
-        if (recipientId) {
-          const chatRes = await fetch(`http://localhost:5001/api/auth/chat/${recipientId}`, {
+          const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api";
+          const chatRes = await fetch(`${API_BASE}/auth/chat/${recipientId}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (!chatRes.ok) throw new Error("Failed to load chat history");
@@ -215,7 +217,8 @@ const Chatterbox = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5001/api/auth/chat", {
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api";
+      const res = await fetch(`${API_BASE}/auth/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

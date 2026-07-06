@@ -36,8 +36,10 @@ const Splits = () => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api";
+
       // Fetch matches to identify roommate
-      const mRes = await fetch("http://localhost:5001/api/auth/matches", {
+      const mRes = await fetch(`${API_BASE}/auth/matches`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const mData = await mRes.json();
@@ -47,7 +49,7 @@ const Splits = () => {
         setMatchedRoommate(roommate);
 
         // Fetch splits history
-        const eRes = await fetch("http://localhost:5001/api/auth/splits?roommateId=" + roommate._id, {
+        const eRes = await fetch(`${API_BASE}/auth/splits?roommateId=` + roommate._id, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const eData = await eRes.json();
@@ -69,7 +71,7 @@ const Splits = () => {
         setExpenses(mapped);
       } else if (sessionStorage.getItem("mockRoommateMatched") === "true") {
         try {
-          const cRes = await fetch("http://localhost:5001/api/auth/candidates", {
+          const cRes = await fetch(`${API_BASE}/auth/candidates`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (cRes.ok) {
@@ -79,7 +81,7 @@ const Splits = () => {
               const mockRoommate = { _id: anjali._id, name: "Anjali Gupta" };
               setMatchedRoommate(mockRoommate);
 
-              const eRes = await fetch("http://localhost:5001/api/auth/splits?roommateId=" + mockRoommate._id, {
+              const eRes = await fetch(`${API_BASE}/auth/splits?roommateId=` + mockRoommate._id, {
                 headers: { Authorization: `Bearer ${token}` }
               });
               if (eRes.ok) {
@@ -123,7 +125,8 @@ const Splits = () => {
     if (!matchedRoommate) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5001/api/auth/splits", {
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api";
+      const res = await fetch(`${API_BASE}/auth/splits`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
