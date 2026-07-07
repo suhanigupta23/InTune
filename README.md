@@ -6,6 +6,7 @@
 ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat&logo=mongodb&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
 ![JWT](https://img.shields.io/badge/JWT-000000?style=flat&logo=jsonwebtokens&logoColor=white)
+![Omnidim](https://img.shields.io/badge/Omnidim-Voice_Agent-8A2BE2?style=flat)
 
 > 🏆 **SheBuilds Hackathon 2025 — National Finalist**  
 > Originally built for SheBuilds 2025, since extended with additional features.
@@ -23,7 +24,7 @@ Finding a roommate shouldn't be a gamble. Two people match when their schedules,
 
 ## 🚀 Key Features
 InTune is built to remove the awkwardness of house hunting by providing an anonymous, secure platform where you match based on compatibility metrics first, verify your identities safely next, and collaborate on shared living spaces seamlessly.
-* **Voice Onboarding**: Users speak their answers to living preference questions. The app transcribes the audio to text using the browser's native Web Speech API.
+* **Voice Onboarding**: Users speak their answers to living preference questions via an **Omnidim**-powered voice agent that handles the survey flow and transcribes responses to text.
 * **Compatibility Scoring**: Calculates matching scores (55% to 98%) between profiles using a client-side text analysis script:
   * Tokenizes transcripts and runs a **TF-IDF vector matching** script.
   * Calculates **Cosine Similarity** to check how close two profiles' descriptions are.
@@ -39,7 +40,7 @@ InTune is built to remove the awkwardness of house hunting by providing an anony
 ## 🛠️ The Architecture & User Flow
 ## 🛠️ Tech Stack
 ```text
-  [ Voice Onboarding ]  ──►  [ Speech-to-Text ]  ──►  [ NLP Vectorizer (TF-IDF) ]
+  [ Voice Onboarding ]  ──►  [ Omnidim Agent ]  ──►  [ Speech-to-Text ]  ──►  [ NLP Vectorizer (TF-IDF) ]
            │                                                       │
            ▼                                                       ▼
   [ Aadhaar Upload ]   ──►  [ OCR RNN Scanning ]  ──►  [ Match Room compatibility ]
@@ -57,7 +58,7 @@ InTune is built to remove the awkwardness of house hunting by providing an anony
                                                                    │
                                                        [ Shared Ledger & splits ]
 ```
-* **Frontend**: React 18, TypeScript, Vite, Tailwind CSS.
+* **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, Framer Motion, Radix UI.
 * **Backend**: Node.js, Express.js.
 * **Database**: MongoDB Atlas (Mongoose).
 * **Authentication**: JWT (JSON Web Tokens) & BcryptJS.
@@ -70,7 +71,7 @@ InTune is built to remove the awkwardness of house hunting by providing an anony
 ### Prerequisites
 - Node.js v18+
 - MongoDB Atlas account
-- npm
+- npm or yarn
 
 ### Setup
 
@@ -119,7 +120,7 @@ Frontend runs on `http://localhost:5173` and backend on `http://localhost:5000`.
 
 ### 🎙️ 1. AI Voice-Vibe Onboarding (Speech-to-Text)
 * **How it works**: Users answer key lifestyle questions via voice recording directly in the browser. 
-* **Under the hood**: The system uses real-time Web Speech deep neural networks to transcribe unstructured audio streams into rich text profiles, capturing the authentic tone, habits, and preferences of the user.
+* **Under the hood**: Powered by an **Omnidim** voice agent that conducts the survey flow end-to-end — collecting spoken responses, transcribing audio streams in real-time, and passing structured text profiles to the NLP pipeline for compatibility scoring.
 ```text
 ├── backend/            # Express API, authentication, database schemas, and seed script
 │   ├── src/
@@ -160,4 +161,5 @@ Frontend runs on `http://localhost:5173` and backend on `http://localhost:5000`.
 * **Backend**: Node.js, Express.js.
 * **Database**: MongoDB Atlas, Mongoose ODM.
 * **Auth**: JSON Web Tokens (JWT), BcryptJS.
+* **Voice Agent**: Omnidim (AI-powered voice survey & speech-to-text).
 * **Libraries**: Tesseract.js (Computer Vision OCR).
