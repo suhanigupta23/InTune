@@ -1,6 +1,21 @@
 # 🎙️ InTune — Find Roommates on the Same Wavelength
 
+![React](https://img.shields.io/badge/React-18-61DAFB?style=flat&logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=node.js&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat&logo=mongodb&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=flat&logo=jsonwebtokens&logoColor=white)
+
+> 🏆 **SheBuilds Hackathon 2025 — National Finalist (Top 1%, 1,500+ entries)**  
+> Originally built for SheBuilds 2025, since extended with additional features.
+
+🔗 **[Live Demo](https://in-tune-phi.vercel.app/)**
+
+---
+
 InTune is a co-living matching application that helps roommates find each other based on lifestyle compatibility. Instead of standard profile swiping, users complete a voice-based survey, their actual living preferences, lifestyle habits, and core vibes, get matched based on text similarity scoring, and verify their profiles with a client-side ID scanner.
+
 ---
 
 ## 🚀 The Core Philosophy: Why "InTune"?
@@ -47,7 +62,59 @@ InTune is built to remove the awkwardness of house hunting by providing an anony
 * **Database**: MongoDB Atlas (Mongoose).
 * **Authentication**: JWT (JSON Web Tokens) & BcryptJS.
 * **Libraries**: Tesseract.js (Client-side text recognition).
+
 ---
+
+## ⚡ Quick Start
+
+### Prerequisites
+- Node.js v18+
+- MongoDB Atlas account
+- npm or yarn
+
+### Setup
+
+1. **Clone the repo**
+```bash
+git clone https://github.com/your-username/intune.git
+cd intune
+```
+
+2. **Install dependencies**
+```bash
+# Backend
+cd backend
+npm install
+
+# Frontend
+cd ../frontend
+npm install
+```
+
+3. **Configure environment variables**
+
+Create a `.env` file in the `backend/` directory:
+```env
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+PORT=5000
+```
+
+4. **Run the app**
+```bash
+# Start backend
+cd backend
+npm run dev
+
+# Start frontend (new terminal)
+cd frontend
+npm run dev
+```
+
+Frontend runs on `http://localhost:5173` and backend on `http://localhost:5000`.
+
+---
+
 ## ✨ Key Technical Features
 
 ### 🎙️ 1. AI Voice-Vibe Onboarding (Speech-to-Text)
@@ -85,7 +152,9 @@ InTune is built to remove the awkwardness of house hunting by providing an anony
 ### 🛏️ 5. StyleMatch & Splits Ledger (Collaborative Living)
 * **How it works**: A centralized suite for verified roommates to plan room decor templates and split shared living costs (utilities, rent, grocery ledgers).
 * **Under the hood**: Peer-to-peer balance tracking connected to the matching database schema.
+
 ---
+
 ## 💻 Tech Stack
 * **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, Framer Motion (premium swipe animations), Radix UI.
 * **Backend**: Node.js, Express.js.
