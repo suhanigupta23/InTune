@@ -1,11 +1,11 @@
 # 🎙️ InTune — Find Roommates on the Same Wavelength
 
-**InTune** is a premium co-living roommate matching application designed to pair roommates who are truly in-sync. Instead of swiping based on superficial profiles, InTune uses **NLP Voice Surveys**, **Semantic Cosine Similarity Matching**, and **Secure Computer Vision ID Verification** to match roommates on their actual living preferences, lifestyle habits, and core vibes.
-InTune is a co-living matching application that helps roommates find each other based on lifestyle compatibility. Instead of standard profile swiping, users complete a voice-based survey, get matched based on text similarity scoring, and verify their profiles with a client-side ID scanner.
+InTune is a co-living matching application that helps roommates find each other based on lifestyle compatibility. Instead of standard profile swiping, users complete a voice-based survey, their actual living preferences, lifestyle habits, and core vibes, get matched based on text similarity scoring, and verify their profiles with a client-side ID scanner.
 ---
 
 ## 🚀 The Core Philosophy: Why "InTune"?
-Finding a roommate shouldn't be a gamble. Two people match when their schedules, habits, and lifestyles get on the **same wavelength**—or in other words, get **"InTune"**. 
+Finding a roommate shouldn't be a gamble. Two people match when their schedules, habits, and lifestyles get on the **same wavelength**—or in other words, get **"InTune"**.
+
 ## 🚀 Key Features
 InTune is built to remove the awkwardness of house hunting by providing an anonymous, secure platform where you match based on compatibility metrics first, verify your identities safely next, and collaborate on shared living spaces seamlessly.
 * **Voice Onboarding**: Users speak their answers to living preference questions. The app transcribes the audio to text using the browser's native Web Speech API.
@@ -18,7 +18,9 @@ InTune is built to remove the awkwardness of house hunting by providing an anony
   * Runs the **Verhoeff Checksum Algorithm** locally on the 12-digit number to check for typos/invalid cards.
 * **Anonymous Chatterbox**: Users start chatting anonymously (using aliases like `Sky_104`). Real names are hidden and only revealed when both users swipe right on each other.
 * **StyleMatch & Splits**: Integrated room layout planning templates and a shared expense ledger to add and split co-living costs.
+
 ---
+
 ## 🛠️ The Architecture & User Flow
 ## 🛠️ Tech Stack
 ```text
@@ -47,7 +49,7 @@ InTune is built to remove the awkwardness of house hunting by providing an anony
 * **Libraries**: Tesseract.js (Client-side text recognition).
 ---
 ## ✨ Key Technical Features
-## 📂 Repository Structure
+
 ### 🎙️ 1. AI Voice-Vibe Onboarding (Speech-to-Text)
 * **How it works**: Users answer key lifestyle questions via voice recording directly in the browser. 
 * **Under the hood**: The system uses real-time Web Speech deep neural networks to transcribe unstructured audio streams into rich text profiles, capturing the authentic tone, habits, and preferences of the user.
