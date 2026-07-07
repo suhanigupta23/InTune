@@ -7,7 +7,7 @@
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
 ![JWT](https://img.shields.io/badge/JWT-000000?style=flat&logo=jsonwebtokens&logoColor=white)
 
-> 🏆 **SheBuilds Hackathon 2025 — National Finalist (Top 1%, 1,500+ entries)**  
+> 🏆 **SheBuilds Hackathon 2025 — National Finalist**  
 > Originally built for SheBuilds 2025, since extended with additional features.
 
 🔗 **[Live Demo](https://in-tune-phi.vercel.app/)**
@@ -57,7 +57,7 @@ InTune is built to remove the awkwardness of house hunting by providing an anony
                                                                    │
                                                        [ Shared Ledger & splits ]
 ```
-* **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, Framer Motion, Radix UI.
+* **Frontend**: React 18, TypeScript, Vite, Tailwind CSS.
 * **Backend**: Node.js, Express.js.
 * **Database**: MongoDB Atlas (Mongoose).
 * **Authentication**: JWT (JSON Web Tokens) & BcryptJS.
@@ -70,7 +70,7 @@ InTune is built to remove the awkwardness of house hunting by providing an anony
 ### Prerequisites
 - Node.js v18+
 - MongoDB Atlas account
-- npm or yarn
+- npm
 
 ### Setup
 
