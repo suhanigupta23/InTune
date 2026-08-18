@@ -1,0 +1,17 @@
+/Users/suhanigupta/.gemini/antigravity/scratch/Intune/in-sync-living-main/backend/src/main/java/com/intune/backend/BackendApplication.java
+/Users/suhanigupta/.gemini/antigravity/scratch/Intune/in-sync-living-main/backend/src/main/java/com/intune/backend/config/DatabaseSeeder.java
+/Users/suhanigupta/.gemini/antigravity/scratch/Intune/in-sync-living-main/backend/src/main/java/com/intune/backend/controller/AuthController.java
+/Users/suhanigupta/.gemini/antigravity/scratch/Intune/in-sync-living-main/backend/src/main/java/com/intune/backend/controller/ChatController.java
+/Users/suhanigupta/.gemini/antigravity/scratch/Intune/in-sync-living-main/backend/src/main/java/com/intune/backend/controller/ExpenseController.java
+/Users/suhanigupta/.gemini/antigravity/scratch/Intune/in-sync-living-main/backend/src/main/java/com/intune/backend/controller/WebhookController.java
+/Users/suhanigupta/.gemini/antigravity/scratch/Intune/in-sync-living-main/backend/src/main/java/com/intune/backend/model/Expense.java
+/Users/suhanigupta/.gemini/antigravity/scratch/Intune/in-sync-living-main/backend/src/main/java/com/intune/backend/model/Match.java
+/Users/suhanigupta/.gemini/antigravity/scratch/Intune/in-sync-living-main/backend/src/main/java/com/intune/backend/model/Message.java
+/Users/suhanigupta/.gemini/antigravity/scratch/Intune/in-sync-living-main/backend/src/main/java/com/intune/backend/model/User.java
+/Users/suhanigupta/.gemini/antigravity/scratch/Intune/in-sync-living-main/backend/src/main/java/com/intune/backend/repository/ExpenseRepository.java
+/Users/suhanigupta/.gemini/antigravity/scratch/Intune/in-sync-living-main/backend/src/main/java/com/intune/backend/repository/MatchRepository.java
+/Users/suhanigupta/.gemini/antigravity/scratch/Intune/in-sync-living-main/backend/src/main/java/com/intune/backend/repository/MessageRepository.java
+/Users/suhanigupta/.gemini/antigravity/scratch/Intune/in-sync-living-main/backend/src/main/java/com/intune/backend/repository/UserRepository.java
+/Users/suhanigupta/.gemini/antigravity/scratch/Intune/in-sync-living-main/backend/src/main/java/com/intune/backend/security/JwtAuthenticationFilter.java
+/Users/suhanigupta/.gemini/antigravity/scratch/Intune/in-sync-living-main/backend/src/main/java/com/intune/backend/security/JwtTokenProvider.java
+/Users/suhanigupta/.gemini/antigravity/scratch/Intune/in-sync-living-main/backend/src/main/java/com/intune/backend/security/SecurityConfig.java
