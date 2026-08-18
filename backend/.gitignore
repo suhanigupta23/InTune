@@ -1,4 +1,12 @@
-# Ignore all node_modules folders
+# Maven build output
+target/
+
+# Ignore environment variables and modules
 node_modules/
 .env
 .env.local
+
+# IDE/OS files
+.idea/
+.vscode/
+.DS_Store

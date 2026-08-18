@@ -11,12 +11,14 @@ node_modules
 dist
 dist-ssr
 *.local
-C:\Programming\RoomMate Matching\in-sync-living\frontend\.env
-C:\Programming\RoomMate Matching\in-sync-living\backend\.env
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Ignore all node_modules folders
 node_modules/
-
 
 # Editor directories and files
 .vscode/*
