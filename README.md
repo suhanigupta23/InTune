@@ -41,9 +41,33 @@ InTune solves this by replacing flat profiles with a dynamic, voice-first semant
 * **Backend**: Java 17, Spring Boot 3, Spring Security, JWT, Spring Data MongoDB.
 * **AI Service**: Python 3.9, FastAPI, SentenceTransformers, PyTorch.
 
----
+## ⚙️ Clone & Local Setup
 
-## 📈 Current Progress
-* **Migrated Backend**: The entire server has been migrated from Node.js Express to Java Spring Boot, providing robust security, JWT token filters, and database models.
-* **AI Microservice**: Decoupled sentence embeddings processing into a lightweight Python FastAPI Docker container, loading SBERT weights at build-time for instantaneous responses.
-* **Upgraded Onboarding UI**: Replaced mock scripts with the OmniDimension Widget Webhook pipeline, adding mount-time database checks to auto-redirect completed users to their Match Meter dashboard.
+### 1. Clone the Repository
+```bash
+git clone git@github.com:suhanigupta23/InTune.git
+cd InTune
+```
+
+### 2. Run Java Spring Boot Backend (Port 5001)
+Make sure local MongoDB is running:
+```bash
+cd backend
+mvn spring-boot:run
+```
+
+### 3. Run SBERT AI Microservice (Port 8000)
+```bash
+cd ai_service
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python main.py
+```
+
+### 4. Run Vite React Frontend (Port 5173)
+```bash
+cd frontend
+npm install
+npm run dev
+```
