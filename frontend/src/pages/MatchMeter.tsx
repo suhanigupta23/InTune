@@ -141,7 +141,7 @@ const MatchMeter = () => {
             const compat = calculateCompatibility(meData.vibeText, c.vibeText || "No voice bio provided.");
             return {
               ...c,
-              match_score: c.match_score !== undefined ? c.match_score : compat.overallScore,
+              match_score: c.match_score,
               criteria_scores: compat.criteria
             };
           });
