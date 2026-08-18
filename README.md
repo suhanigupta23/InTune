@@ -1,73 +1,104 @@
-# 🎙️ InTune — AI-Powered Roommate Matching Platform
+# InTune — AI-Powered Roommate Matching Platform
 
-> *"Finding a roommate shouldn't just be about sharing rent—it's about matching frequencies."*
+Finding a compatible roommate shouldn't come down to a checkbox for "veg vs non-veg." InTune matches people by how they actually describe their lifestyle, not by ticking boxes.
 
----
-
-## 🎵 Why "InTune"?
-Finding the right roommate is like playing in an orchestra. If one instrument is out of key, the entire symphony is disrupted. The name **InTune** represents helping co-living flatmates align their living habits, sleeping rhythms, hygiene standards, and social vibes to live in complete harmony.
+**Live demo:** https://in-tune-phi.vercel.app/
 
 ---
 
-## ⚠️ The Problem
-Traditional flatmate search apps rely on rigid, superficial checklists (e.g., "Veg vs. Non-Veg" or "Smoker vs. Non-Smoker"). These binary choices fail to capture the nuances of daily human living. 
-* **Superficial Filters**: Checking identical boxes doesn't mean two personalities match.
-* **Safety Concerns**: Revealing real identities and contact information immediately during initial contact exposes users to privacy risks.
-* **Typo/Invalid Identity Profiles**: Manual verification of profile claims leads to fraudulent or invalid listings.
+## The Problem
 
----
+Most flatmate-finding apps rely on rigid binary filters (smoker/non-smoker, veg/non-veg) that miss the actual nuance of how two people live together. On top of that, users have to reveal their real name and phone number just to start a conversation, and there's no real way to confirm someone's profile isn't fake.
 
-## 💡 The Solution
-InTune solves this by replacing flat profiles with a dynamic, voice-first semantic onboarding process:
-* **Voice Bio Analysis**: Users talk freely about their expectations, which are transcribed into natural language bios.
-* **Semantic Compatibility**: Instead of keyword matching, an AI engine analyzes the *meaning* and *vibe* of the text bios.
-* **Anonymous Verification**: Roommates interact anonymously under generated aliases. Real credentials (name, phone, email, Aadhaar) are hidden and **only revealed upon mutual swipe likes**.
+## The Solution
 
----
+- Users describe their lifestyle in their own words — by voice or by typing — instead of filling out a checkbox form.
+- An AI model compares the *meaning* of two people's descriptions and produces a compatibility score, not just keyword matches.
+- Everyone stays anonymous behind an auto-generated alias (like `Sky_412`) until both people mutually swipe right — only then are real names and contact details revealed.
+- Identity documents are verified on-device using OCR and a checksum algorithm, so fake or mistyped IDs are caught automatically.
 
-## 🛠️ Technical Features & Algorithms
+## What It Does — Feature by Feature
 
-* **🧠 SBERT Vector Similarity (FastAPI)**: Converts user voice bios into high-dimensional dense vector embeddings using the `all-MiniLM-L6-v2` SentenceTransformer model. Roommate compatibility is computed using **Cosine Similarity** dot products, scaled into a natural $[55\%, 98\%]$ percentage.
-* **🔒 Verhoeff Checksum Algorithm (Java)**: Validates Aadhaar card identification numbers during OCR profile verification to prevent typos and spoofed cards.
-* **🧩 Mutual-Reveal State Machine**: Manages likes and swipes. When a double swipe-right occurs, the backend transitions the match status to `matched`, securely revealing contact credentials.
-* **💵 Splitmate shared ledger**: A co-living expense splitter ledger to log, split, and divide flat costs.
-* **📐 StyleMatch floor designer**: Interactive layout planners to design joint flats.
+| Feature | What it means for the user |
+|---|---|
+| **Voice Onboarding** | Talk naturally about your living habits (via browser voice input or a guided AI phone-call-style widget) instead of filling a form |
+| **Smart Compatibility Matching** | An AI model reads the meaning behind your description and finds people who genuinely vibe with your lifestyle, sleep schedule, and habits |
+| **Anonymous-First Chat** | Message your matches under an alias — your real identity is never shown until you both agree to match |
+| **ID Verification** | Uploaded ID photos are scanned and checksum-validated automatically to catch typos and fakes, without ever sending the photo to a server |
+| **Expense Splitting** | Once matched, log and split shared costs with your roommate in one place |
+| **Room Styling & Conflict Help** | Early-stage tools for planning shared spaces and getting advice on common roommate friction points |
 
----
+## How It Works (Non-Technical)
 
-## ⚙️ Tech Stack
+1. **Sign up** and verify your identity with a quick ID photo scan.
+2. **Describe your ideal living situation** — talk or type about your habits, schedule, and preferences.
+3. **Get matched** — the app shows you compatibility scores with other verified users, broken down by category (cleanliness, sleep schedule, social habits, and more).
+4. **Chat anonymously** with anyone who interests you.
+5. **Mutually swipe right** to unlock each other's real name and contact details.
+6. **Move in and use the tools** — split expenses, plan the room together, and get help resolving disagreements.
 
-* **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, Shadcn UI, Lucide.
-* **Backend**: Java 17, Spring Boot 3, Spring Security, JWT, Spring Data MongoDB.
-* **AI Service**: Python 3.9, FastAPI, SentenceTransformers, PyTorch.
+## How It Works (Technical)
 
-## ⚙️ Clone & Local Setup
+InTune is a **3-service architecture**:
 
-### 1. Clone the Repository
+```
+React (Vercel)  →  Spring Boot API (Render)  →  MongoDB
+                          ↓
+                  FastAPI + SBERT microservice (Render)
+                          ↑
+             OmniDimension voice AI (webhook callback)
+```
+
+- **Frontend** — React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui
+- **Backend API** — Java 17, Spring Boot 3, Spring Security, JWT auth, MongoDB
+- **Matching Engine** — Python, FastAPI, Sentence-Transformers (`all-MiniLM-L6-v2`), computing semantic similarity via cosine distance on sentence embeddings
+- **Identity Verification** — Tesseract.js (OCR, runs in-browser) + a Verhoeff checksum implementation to validate document numbers without a government API
+- **Voice AI** — OmniDimension for guided voice onboarding, plus native browser speech recognition as a lighter-weight alternative
+
+### Core algorithm, in one paragraph
+Each user's lifestyle description is converted into a 384-dimensional vector by a sentence-embedding model. Two people's vectors are compared using cosine similarity — a measure of how closely their *meaning* aligns, not just their word overlap. This produces the overall compatibility score. If the matching service is temporarily unavailable, the backend falls back to a simpler keyword-overlap (Jaccard) similarity so the app degrades gracefully instead of breaking.
+
+## Setup
+
 ```bash
-git clone git@github.com:suhanigupta23/InTune.git
+git clone https://github.com/suhanigupta23/InTune.git
 cd InTune
-```
 
-### 2. Run Java Spring Boot Backend (Port 5001)
-Make sure local MongoDB is running:
-```bash
+# 1. Backend (needs local MongoDB running)
 cd backend
-mvn spring-boot:run
-```
+mvn spring-boot:run          # http://localhost:5001
 
-### 3. Run SBERT AI Microservice (Port 8000)
-```bash
-cd ai_service
-python3 -m venv venv
-source venv/bin/activate
+# 2. Matching microservice
+cd ../ai_service
+python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-python main.py
+python main.py                # http://localhost:8000
+
+# 3. Frontend
+cd ../frontend
+npm install
+npm run dev                    # http://localhost:5173
 ```
 
-### 4. Run Vite React Frontend (Port 5173)
-```bash
-cd frontend
-npm install
-npm run dev
-```
+## Tech Stack
+
+**Frontend:** React 18 · TypeScript · Vite · Tailwind CSS · shadcn/ui
+**Backend:** Java 17 · Spring Boot 3 · Spring Security · JWT · Spring Data MongoDB
+**AI/ML:** Python 3.9 · FastAPI · Sentence-Transformers · PyTorch
+**Database:** MongoDB
+**Deployment:** Vercel (frontend) · Render (backend + AI service)
+
+## Current Status
+
+This is an actively evolving personal project. Core flows — signup, ID verification, voice onboarding, AI matching, anonymous chat, and mutual-match reveal — are fully functional end to end. Room-styling and conflict-resolution tools are early-stage/in progress.
+
+## Roadmap
+
+- [ ] Harden third-party sign-in verification
+- [ ] Move from chat polling to real-time WebSocket delivery
+- [ ] Vector-index-based matching to scale beyond brute-force comparison
+- [ ] LLM-powered conflict-resolution assistant
+
+## Author
+
+Suhani Gupta — [GitHub](https://github.com/suhanigupta23) · [LinkedIn](https://linkedin.com/in/suhani-gupta23/) · [Portfolio](https://suhanigupta.vercel.app)
