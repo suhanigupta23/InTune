@@ -1,103 +1,49 @@
-# 🎙️ InTune — AI Roommate Matching Platform
+# 🎙️ InTune — AI-Powered Roommate Matching Platform
 
-InTune is a modern co-living roommate matching application that helps users discover their most compatible flatmates. Using voice onboarding, sentence embeddings, and secure credential reveals, InTune makes finding a roommate data-driven and safe.
-
----
-
-## 🏗️ System Architecture
-
-```mermaid
-graph TD
-    A[React Vite Frontend] -->|API Request| B[Java Spring Boot Backend]
-    A -->|Iframe Call| C[OmniDimension Voice Widget]
-    B -->|Webhook Callback| B
-    B -->|Cosine Vector Similarity| D[FastAPI SBERT Microservice]
-    B -->|Data Persistence| E[(MongoDB Database)]
-```
-
-### 💻 1. Frontend (`/frontend`)
-A sleek, responsive Single Page Application built with **React**, **TypeScript**, **Tailwind CSS**, and **Shadcn UI**. Includes:
-* Dynamic OmniDimension onboarding widget integrations.
-* Real-time match notifications and animated card lists.
-* Encrypted Chatterbox anonymous chat room, shared split expense ledger, and StyleMatch floor plan tools.
-
-### ☕ 2. Backend (`/backend`)
-A high-performance **Java Spring Boot** REST API providing authentication, data storage, and business logic:
-* Secure authentication using JWT and Spring Security.
-* Real-time matching controller feeding database records to the SBERT similarity engine.
-* Mutual swipe matching state machines and anonymous chat messaging routing.
-* Dynamic Webhook callbacks listener (`/api/webhook/omnidim`) to parse OmniDimension voice assessment transcripts.
-
-### 🐍 3. AI Similarity Service (`/ai_service`)
-A **FastAPI Python** microservice that pre-loads SBERT SentenceTransformers (`all-MiniLM-L6-v2`) to perform semantic similarity matching:
-* Converts unstructured voice bio transcripts into high-dimensional vector embeddings.
-* Calculates cosine similarity scores between the user profile and all verified candidate roommates.
-* Scales scores into a readable $[55\%, 98\%]$ compatibility percentage.
+> *"Finding a roommate shouldn't just be about sharing rent—it's about matching frequencies."*
 
 ---
 
-## 🛠️ Tech Stack & Dependencies
+## 🎵 Why "InTune"?
+Finding the right roommate is like playing in an orchestra. If one instrument is out of key, the entire symphony is disrupted. The name **InTune** represents helping co-living flatmates align their living habits, sleeping rhythms, hygiene standards, and social vibes to live in complete harmony.
 
-* **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, Lucide Icons, Radix UI.
+---
+
+## ⚠️ The Problem
+Traditional flatmate search apps rely on rigid, superficial checklists (e.g., "Veg vs. Non-Veg" or "Smoker vs. Non-Smoker"). These binary choices fail to capture the nuances of daily human living. 
+* **Superficial Filters**: Checking identical boxes doesn't mean two personalities match.
+* **Safety Concerns**: Revealing real identities and contact information immediately during initial contact exposes users to privacy risks.
+* **Typo/Invalid Identity Profiles**: Manual verification of profile claims leads to fraudulent or invalid listings.
+
+---
+
+## 💡 The Solution
+InTune solves this by replacing flat profiles with a dynamic, voice-first semantic onboarding process:
+* **Voice Bio Analysis**: Users talk freely about their expectations, which are transcribed into natural language bios.
+* **Semantic Compatibility**: Instead of keyword matching, an AI engine analyzes the *meaning* and *vibe* of the text bios.
+* **Anonymous Verification**: Roommates interact anonymously under generated aliases. Real credentials (name, phone, email, Aadhaar) are hidden and **only revealed upon mutual swipe likes**.
+
+---
+
+## 🛠️ Technical Features & Algorithms
+
+* **🧠 SBERT Vector Similarity (FastAPI)**: Converts user voice bios into high-dimensional dense vector embeddings using the `all-MiniLM-L6-v2` SentenceTransformer model. Roommate compatibility is computed using **Cosine Similarity** dot products, scaled into a natural $[55\%, 98\%]$ percentage.
+* **🔒 Verhoeff Checksum Algorithm (Java)**: Validates Aadhaar card identification numbers during OCR profile verification to prevent typos and spoofed cards.
+* **🧩 Mutual-Reveal State Machine**: Manages likes and swipes. When a double swipe-right occurs, the backend transitions the match status to `matched`, securely revealing contact credentials.
+* **💵 Splitmate shared ledger**: A co-living expense splitter ledger to log, split, and divide flat costs.
+* **📐 StyleMatch floor designer**: Interactive layout planners to design joint flats.
+
+---
+
+## ⚙️ Tech Stack
+
+* **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, Shadcn UI, Lucide.
 * **Backend**: Java 17, Spring Boot 3, Spring Security, JWT, Spring Data MongoDB.
-* **AI Service**: Python 3.9, FastAPI, Uvicorn, SentenceTransformers, PyTorch.
-* **Database**: MongoDB Atlas.
+* **AI Service**: Python 3.9, FastAPI, SentenceTransformers, PyTorch.
 
 ---
 
-## 🚀 Key Features
-
-1. **🎙️ Voice-Based Onboarding**: Users complete their roommate profile using the voice-based OmniDimension widget. Tonal responses are transcribed and pushed asynchronously via webhook callbacks.
-2. **🧠 SBERT Semantic Matching**: Offloads matching to a deep learning sentence encoder, ensuring matches are formed on actual lifestyle descriptions rather than just superficial form options.
-3. **🔒 Anonymous Chatterbox**: Roommates text under aliases (e.g. `Sky_412`). Real credentials (Aadhaar name, phone, email) are only revealed when both users swipe right on each other.
-4. **🛡️ Aadhaar ID OCR Verification**: Extracts Aadhaar card digits client-side using Tesseract OCR, validating the number via the **Verhoeff Checksum Algorithm** to prevent spoofing or typos.
-5. **💵 Splitmate Ledger**: Shared expense split management to log, divide, and track co-living costs.
-
----
-
-## 📂 Repository Structure
-
-```text
-├── ai_service/           # Python FastAPI SBERT microservice
-│   ├── main.py           # Embeddings calculation API
-│   └── Dockerfile        # Docker setup (downloads model weights at build time)
-│
-├── backend/              # Java Spring Boot API
-│   ├── src/main/java/    # Security configs, controller routes, and MongoDB repositories
-│   ├── pom.xml           # Maven dependencies config
-│   └── Dockerfile        # Multi-stage Java compile build container
-│
-└── frontend/             # React + TypeScript Vite frontend SPA
-    ├── src/components/   # Voice onboarding sections and widgets
-    └── src/pages/        # Onboarding, Dashboard, MatchMeter, Chatterbox, Splits, StyleMatch
-```
-
----
-
-## 🏃 Local Run & Installation
-
-### 1. Spring Boot Backend
-Make sure local MongoDB is running (`mongodb://localhost:27017/intuneDB`):
-```bash
-cd backend
-mvn spring-boot:run
-```
-*Port: `5001`*
-
-### 2. SBERT AI Microservice
-```bash
-cd ai_service
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python main.py
-```
-*Port: `8000`*
-
-### 3. React Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
-*Port: `5173`*
+## 📈 Current Progress
+* **Migrated Backend**: The entire server has been migrated from Node.js Express to Java Spring Boot, providing robust security, JWT token filters, and database models.
+* **AI Microservice**: Decoupled sentence embeddings processing into a lightweight Python FastAPI Docker container, loading SBERT weights at build-time for instantaneous responses.
+* **Upgraded Onboarding UI**: Replaced mock scripts with the OmniDimension Widget Webhook pipeline, adding mount-time database checks to auto-redirect completed users to their Match Meter dashboard.
