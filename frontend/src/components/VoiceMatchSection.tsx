@@ -80,7 +80,7 @@ const VoiceMatchSection = () => {
         if (!token) return;
 
         const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api";
-        const res = await fetch(`${API_BASE}/auth/profile`, {
+        const res = await fetch(`${API_BASE}/auth/me`, {
           headers: {
             "Authorization": `Bearer ${token}`
           }
@@ -165,7 +165,7 @@ const VoiceMatchSection = () => {
             });
 
             setTimeout(async () => {
-              const response = await fetch(`${API_BASE}/auth/profile`, {
+              const response = await fetch(`${API_BASE}/auth/me`, {
                 headers: { "Authorization": `Bearer ${token}` }
               });
               if (response.ok) {
@@ -256,7 +256,7 @@ const VoiceMatchSection = () => {
         description: "Retrieving your roommate preferences from the server...",
       });
 
-      const res = await fetch(`${API_BASE}/auth/profile`, {
+      const res = await fetch(`${API_BASE}/auth/me`, {
         headers: {
           "Authorization": `Bearer ${token}`
         }

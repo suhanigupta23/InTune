@@ -12,7 +12,6 @@ import { Mail, Lock, User, Phone, Shield, ArrowRight, Home, CheckCircle, ImageIc
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { createWorker } from "tesseract.js"; 
-import { API } from "@/lib/api";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -229,7 +228,6 @@ const handleSignup = async (e: React.FormEvent) => {
         phone: formData.phone,
         password: formData.password,
         gender: extractedData.gender === "Unknown" ? "Female" : extractedData.gender,
-        isVerified: true,
         maskedAadhaar: extractedData.maskedAadhaar,
         aadhaarNumber: extractedData.rawAadhaar
       });
@@ -249,50 +247,6 @@ const handleSignup = async (e: React.FormEvent) => {
     }
   };
   
-const handleGoogleSignup = async () => {
-  try {
-    type Resp = { token: string; name: string; email: string; _id: string; anonymousId: string };
-    const randomSeed = Math.floor(Math.random() * 1000);
-    const data = await request<Resp>("/auth/google-login", {
-      name: `GoogleUser_${randomSeed}`,
-      email: `googleuser_${randomSeed}@gmail.com`,
-      googleId: `google_${randomSeed}`
-    });
-
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify({
-      _id: data._id,
-      name: data.name,
-      email: data.email,
-      anonymousId: data.anonymousId
-    }));
-
-    // Save to Google account list for dynamic rendering in modal chooser
-    const savedStr = localStorage.getItem("savedGoogleAccounts");
-    const savedAccounts = savedStr ? JSON.parse(savedStr) : [];
-    if (!savedAccounts.some((acc: any) => acc.email.toLowerCase() === data.email.toLowerCase())) {
-      savedAccounts.push({
-        name: data.name,
-        email: data.email,
-        avatarLetter: data.name.charAt(0).toUpperCase()
-      });
-      localStorage.setItem("savedGoogleAccounts", JSON.stringify(savedAccounts));
-    }
-
-    toast({
-      title: "Google Signup Successful! 🎉",
-      description: "Signed up via Google. Complete voice onboarding and Aadhaar verification next."
-    });
-    navigate("/dashboard");
-  } catch (err: any) {
-    toast({
-      title: "Google Signup failed",
-      description: err.message,
-      variant: "destructive"
-    });
-  }
-};
-
   const signupBenefits = [
     "Get your unique anonymous ID",
     "Advanced AI voice matching",

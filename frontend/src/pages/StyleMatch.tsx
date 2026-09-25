@@ -141,8 +141,7 @@ const StyleMatch = () => {
     }, 1200);
   };
 
-  const isMockMatched = sessionStorage.getItem("mockRoommateMatched") === "true";
-  const activeRoommate = matchedRoommate || (isMockMatched ? { name: "Anjali Gupta", anonymousId: "Anjali_234" } : null);
+  const activeRoommate = matchedRoommate;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

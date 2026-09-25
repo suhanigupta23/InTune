@@ -2,9 +2,18 @@ package com.intune.backend.controller;
 
 import com.intune.backend.model.Match;
 import com.intune.backend.model.User;
+import com.intune.backend.dto.SafeUserResponse;
 import com.intune.backend.repository.MatchRepository;
 import com.intune.backend.repository.UserRepository;
 import com.intune.backend.security.JwtTokenProvider;
+import com.intune.backend.service.AiSimilarityClient;
+import com.intune.backend.service.VerhoeffChecksumValidator;
+import com.intune.backend.service.UserEmbeddingService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,44 +45,73 @@ public class AuthController {
     @Autowired
     private JwtTokenProvider tokenProvider;
 
-    @Value("${ai.similarity.url}")
-    private String aiSimilarityUrl;
+    @Autowired
+    private AiSimilarityClient aiSimilarityClient;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    private UserEmbeddingService userEmbeddingService;
+
+    @Autowired
+    private VerhoeffChecksumValidator verhoeffChecksumValidator;
+
+    @Value("${matching.top-k}")
+    private int matchingTopK;
 
     // DTOs using Lombok for clean, readable code
     @Data
     public static class RegisterRequest {
+        @NotBlank(message = "Name is required")
+        @Size(max = 100, message = "Name must be at most 100 characters")
         private String name;
+
+        @NotBlank(message = "Email is required")
+        @Email(message = "Email must be valid")
+        @Size(max = 254, message = "Email must be at most 254 characters")
         private String email;
+
+        @Pattern(
+                regexp = "^$|\\+?[0-9][0-9 ()-]{6,19}$",
+                message = "Phone number format is invalid")
         private String phone;
+
+        @NotBlank(message = "Password is required")
+        @Size(min = 8, max = 72, message = "Password must be between 8 and 72 characters")
         private String password;
+
+        @Size(max = 30, message = "Gender must be at most 30 characters")
         private String gender;
-        private boolean isVerified;
+
+        @Size(max = 20, message = "Masked Aadhaar must be at most 20 characters")
         private String maskedAadhaar;
+
+        @NotBlank(message = "Aadhaar number is required")
+        @Pattern(regexp = "^\\d{12}$", message = "Aadhaar number must contain exactly 12 digits")
         private String aadhaarNumber;
     }
 
     @Data
     public static class LoginRequest {
+        @NotBlank(message = "Email is required")
+        @Email(message = "Email must be valid")
+        @Size(max = 254, message = "Email must be at most 254 characters")
         private String email;
+
+        @NotBlank(message = "Password is required")
+        @Size(min = 8, max = 72, message = "Password must be between 8 and 72 characters")
         private String password;
     }
 
     @Data
-    public static class GoogleLoginRequest {
-        private String email;
-        private String name;
-        private String googleId;
-    }
-
-    @Data
     public static class ProfileRequest {
+        @NotBlank(message = "Vibe text is required")
+        @Size(max = 2_000, message = "Vibe text must be at most 2,000 characters")
         private String vibeText;
     }
 
     @Data
     public static class LikeRequest {
+        @NotBlank(message = "Candidate ID is required")
+        @Pattern(regexp = "^[a-fA-F0-9]{24}$", message = "Candidate ID format is invalid")
         private String candidateId;
         private boolean like;
     }
@@ -90,6 +127,19 @@ public class AuthController {
         private String avatarSeed;
         private double match_score;
         private boolean isNewMatch;
+    }
+
+    private SafeUserResponse toSafeUserResponse(User user) {
+        return SafeUserResponse.builder()
+                ._id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .anonymousId(user.getAnonymousId())
+                .gender(user.getGender())
+                .isVerified(user.isVerified())
+                .vibeText(user.getVibeText())
+                .avatarSeed(user.getAvatarSeed())
+                .build();
     }
 
     // Helper to generate anonymous ID
@@ -118,11 +168,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request) {
-        if (request.getEmail() == null || request.getPassword() == null || request.getName() == null) {
-            return ResponseEntity.badRequest().body(Map.of("msg", "All fields required"));
-        }
-
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             return ResponseEntity.badRequest().body(Map.of("msg", "Account already exists with this email address"));
         }
@@ -134,6 +180,7 @@ public class AuthController {
         }
 
         String aadhHash = null;
+        boolean documentNumberValidated = verhoeffChecksumValidator.isValid(request.getAadhaarNumber());
         if (request.getAadhaarNumber() != null && !request.getAadhaarNumber().trim().isEmpty()) {
             aadhHash = hashAadhaar(request.getAadhaarNumber());
             if (userRepository.findByAadhaarHash(aadhHash).isPresent()) {
@@ -150,7 +197,7 @@ public class AuthController {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .anonymousId(generateAnon())
                 .gender(request.getGender())
-                .isVerified(request.isVerified())
+                .isVerified(documentNumberValidated)
                 .maskedAadhaar(request.getMaskedAadhaar())
                 .aadhaarHash(aadhHash)
                 .avatarSeed(avatarSeed)
@@ -172,7 +219,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest request) {
         Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
         if (userOpt.isEmpty() || !passwordEncoder.matches(request.getPassword(), userOpt.get().getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("msg", "Invalid credentials"));
@@ -190,33 +237,14 @@ public class AuthController {
         ));
     }
 
-    @PostMapping("/google-login")
-    public ResponseEntity<?> googleLogin(@RequestBody GoogleLoginRequest request) {
-        Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("msg", "Account does not exist. Please sign up first."));
-        }
-
-        User user = userOpt.get();
-        String token = tokenProvider.generateToken(user.getId());
-
-        return ResponseEntity.ok(Map.of(
-                "_id", user.getId(),
-                "name", user.getName(),
-                "email", user.getEmail(),
-                "anonymousId", user.getAnonymousId(),
-                "token", token
-        ));
-    }
-
     @GetMapping("/me")
     public ResponseEntity<?> getMe() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(toSafeUserResponse(user));
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<?> updateProfile(@RequestBody ProfileRequest request) {
+    public ResponseEntity<?> updateProfile(@Valid @RequestBody ProfileRequest request) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         
         Optional<User> userOpt = userRepository.findById(currentUser.getId());
@@ -225,13 +253,12 @@ public class AuthController {
         }
 
         User user = userOpt.get();
-        if (request.getVibeText() != null) {
-            user.setVibeText(request.getVibeText());
-        }
+        user.setVibeText(request.getVibeText());
         user.setUpdatedAt(new Date());
+        userEmbeddingService.refreshEmbedding(user);
         userRepository.save(user);
 
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(toSafeUserResponse(user));
     }
 
     @GetMapping("/candidates")
@@ -255,23 +282,29 @@ public class AuthController {
         List<Double> scores = new ArrayList<>();
         boolean success = false;
 
-        // Hit the SBERT FastAPI similarity service
-        if (currentUser.getVibeText() != null && !currentUser.getVibeText().trim().isEmpty()) {
-            try {
-                Map<String, Object> payload = Map.of(
-                        "anchor", currentUser.getVibeText(),
-                        "candidates", candidateVibes
-                );
-                Map<String, Object> response = restTemplate.postForObject(aiSimilarityUrl, payload, Map.class);
-                if (response != null && response.containsKey("scores")) {
-                    List<?> scoresList = (List<?>) response.get("scores");
-                    for (Object scoreObj : scoresList) {
-                        scores.add(((Number) scoreObj).doubleValue());
-                    }
-                    success = true;
-                }
-            } catch (Exception e) {
-                // Fallback to local similarity mapping if SBERT is offline
+        boolean allCandidatesHaveCompatibleEmbeddings = userEmbeddingService.hasCurrentEmbedding(currentUser)
+                && candidates.stream().allMatch(candidate ->
+                        userEmbeddingService.hasCurrentEmbedding(candidate));
+
+        if (allCandidatesHaveCompatibleEmbeddings) {
+            List<List<Double>> candidateEmbeddings = candidates.stream()
+                    .map(User::getEmbedding)
+                    .collect(Collectors.toList());
+            Optional<List<Double>> aiScores = aiSimilarityClient.fetchScoresFromEmbeddings(
+                    currentUser.getEmbedding(),
+                    candidateEmbeddings);
+            if (aiScores.isPresent()) {
+                scores.addAll(aiScores.get());
+                success = true;
+            }
+        } else if (currentUser.getVibeText() != null && !currentUser.getVibeText().trim().isEmpty()) {
+            // Existing users without embeddings continue through the text-based compatibility path.
+            Optional<List<Double>> aiScores = aiSimilarityClient.fetchScores(
+                    currentUser.getVibeText(),
+                    candidateVibes);
+            if (aiScores.isPresent()) {
+                scores.addAll(aiScores.get());
+                success = true;
             }
         }
 
@@ -308,18 +341,24 @@ public class AuthController {
                     .build());
         }
 
-        // Sort candidates by match score in descending order
-        responseList.sort((a, b) -> Double.compare(b.getMatch_score(), a.getMatch_score()));
+        return ResponseEntity.ok(selectTopCandidates(responseList, matchingTopK));
+    }
 
-        return ResponseEntity.ok(responseList);
+    static List<CandidateResponse> selectTopCandidates(
+            List<CandidateResponse> candidates,
+            int topK) {
+        if (topK <= 0) {
+            return Collections.emptyList();
+        }
+
+        return candidates.stream()
+                .sorted(Comparator.comparingDouble(CandidateResponse::getMatch_score).reversed())
+                .limit(topK)
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/like")
-    public ResponseEntity<?> likeCandidate(@RequestBody LikeRequest request) {
-        if (request.getCandidateId() == null) {
-            return ResponseEntity.badRequest().body(Map.of("msg", "Candidate ID required"));
-        }
-
+    public ResponseEntity<?> likeCandidate(@Valid @RequestBody LikeRequest request) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userA = currentUser.getId();
         String userB = request.getCandidateId();

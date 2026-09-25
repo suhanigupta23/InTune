@@ -69,44 +69,6 @@ const Splits = () => {
           };
         });
         setExpenses(mapped);
-      } else if (sessionStorage.getItem("mockRoommateMatched") === "true") {
-        try {
-          const cRes = await fetch(`${API_BASE}/auth/candidates`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          if (cRes.ok) {
-            const cData = await cRes.json();
-            const anjali = cData.find((c: any) => c.anonymousId === "CleanFreak_551") || cData[0];
-            if (anjali) {
-              const mockRoommate = { _id: anjali._id, name: "Anjali Gupta" };
-              setMatchedRoommate(mockRoommate);
-
-              const eRes = await fetch(`${API_BASE}/auth/splits?roommateId=` + mockRoommate._id, {
-                headers: { Authorization: `Bearer ${token}` }
-              });
-              if (eRes.ok) {
-                const eData = await eRes.json();
-                const mapped = eData.map((e: any) => {
-                  const isPaidByMe = e.paidBy === currentUser._id;
-                  return {
-                    id: e._id,
-                    amount: e.amount,
-                    description: e.description,
-                    category: e.category,
-                    paidBy: isPaidByMe ? "you" : mockRoommate.name,
-                    splitWith: isPaidByMe ? mockRoommate.name : "you",
-                    date: new Date(e.date).toLocaleDateString(),
-                    yourShare: Math.round(e.amount / 2),
-                    theirShare: Math.round(e.amount / 2)
-                  };
-                });
-                setExpenses(mapped);
-              }
-            }
-          }
-        } catch (e) {
-          console.error(e);
-        }
       } else {
         setMatchedRoommate(null);
       }

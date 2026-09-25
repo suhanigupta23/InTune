@@ -197,17 +197,10 @@ const MatchMeter = () => {
   };
 
   const handleLike = async (candidateId: string) => {
-    // Instantly launch the Congratulations Match Reveal Modal for demo simulation
-    const cand = candidates.find(c => c._id === candidateId);
-    if (cand) {
-      setMatchedCandidate(cand);
-      setShowMatchModal(true);
-    }
-
     try {
       const token = localStorage.getItem("token");
       const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api";
-      await fetch(`${API_BASE}/auth/like`, {
+      const response = await fetch(`${API_BASE}/auth/like`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -215,8 +208,31 @@ const MatchMeter = () => {
         },
         body: JSON.stringify({ candidateId, like: true })
       });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.msg || "Failed to save like");
+      }
+
+      if (result.isMatch) {
+        const candidate = candidates.find(c => c._id === candidateId);
+        if (candidate) {
+          setMatchedCandidate(candidate);
+          setShowMatchModal(true);
+        }
+      } else {
+        toast({
+          title: "Like recorded",
+          description: "The match will be confirmed if the other user also likes you back."
+        });
+      }
     } catch (err) {
       console.error("Persisting swipe failed", err);
+      toast({
+        title: "Could not save like",
+        description: "Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -455,7 +471,6 @@ const MatchMeter = () => {
 
           <Button
             onClick={() => {
-              sessionStorage.setItem("mockRoommateMatched", "true");
               setShowMatchModal(false);
               toast({
                 title: "Roommate Finalized!",

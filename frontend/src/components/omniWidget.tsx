@@ -2,6 +2,13 @@ import { useEffect } from 'react';
 
 const OmniWidget = () => {
   useEffect(() => {
+    const widgetKey = import.meta.env.VITE_OMNIDIMENSION_WIDGET_KEY;
+
+    // The widget key is intentionally public, but it must be configured per environment.
+    if (!widgetKey) {
+      return;
+    }
+
     const userStr = localStorage.getItem("user");
     const userObj = userStr ? JSON.parse(userStr) : null;
     const userName = userObj ? userObj.name : "there";
@@ -16,7 +23,7 @@ const OmniWidget = () => {
     const script = document.createElement('script');
     script.id = 'omnidimension-web-widget';
     script.async = true;
-    script.src = 'https://omnidim.io/web_widget.js?secret_key=eee6b5c85727b85fe11d12b60a7e7b29';
+    script.src = `https://omnidim.io/web_widget.js?secret_key=${encodeURIComponent(widgetKey)}`;
   
     document.body.appendChild(script);
 
@@ -57,4 +64,3 @@ const OmniWidget = () => {
 };
 
 export default OmniWidget;
-

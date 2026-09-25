@@ -143,16 +143,6 @@ const FeatureCards = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => {
             const IconComponent = feature.icon;
-            const isMockMatched = sessionStorage.getItem("mockRoommateMatched") === "true";
-            let displayTitle = feature.title;
-            let displayDescription = feature.description;
-
-            if (feature.title === "Match Confirmation") {
-              if (isMockMatched) {
-                displayTitle = "Roommate Confirmed! 🎉";
-                displayDescription = "Congratulations! You have locked in your match with Anjali Gupta (CleanFreak_551). Real identity & verified Aadhaar details are revealed.";
-              }
-            }
 
             return (
               <Card
@@ -167,12 +157,12 @@ const FeatureCards = () => {
                     <IconComponent className="w-6 h-6" />
                   </div>
                   <CardTitle className="text-xl font-semibold text-primary">
-                    {displayTitle}
+                    {feature.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-muted-foreground leading-relaxed">
-                    {displayDescription}
+                    {feature.description}
                   </CardDescription>
                 </CardContent>
               </Card>

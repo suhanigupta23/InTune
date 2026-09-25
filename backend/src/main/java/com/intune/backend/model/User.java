@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.List;
 
 @Document(collection = "users")
 @Data
@@ -39,6 +40,9 @@ public class User {
     
     @Builder.Default
     private String vibeText = "";
+
+    private List<Double> embedding;
+    private String embeddingModel;
     
     private String avatarSeed;
     

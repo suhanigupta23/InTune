@@ -126,7 +126,7 @@ const Dashboard = () => {
 
   const hasVibe = !!profile?.vibeText;
   const finalizedRoommate = matches.find(m => m.status === "matched");
-  const isFinalized = !!finalizedRoommate || sessionStorage.getItem("mockRoommateMatched") === "true";
+  const isFinalized = !!finalizedRoommate;
   const activeChats = matches.filter(m => m.status === "pending");
 
   // Lock status helper

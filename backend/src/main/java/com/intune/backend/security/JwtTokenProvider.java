@@ -14,29 +14,25 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    private final String jwtSecret;
+    private static final int MIN_SECRET_BYTES = 32;
+
+    private final Key signingKey;
     private final long jwtExpirationInMs;
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String jwtSecret,
             @Value("${jwt.expiration}") long jwtExpirationInMs) {
-        this.jwtSecret = jwtSecret;
-        this.jwtExpirationInMs = jwtExpirationInMs;
-    }
+        byte[] secretBytes = jwtSecret == null
+                ? new byte[0]
+                : jwtSecret.getBytes(StandardCharsets.UTF_8);
 
-    private Key getSigningKey() {
-        byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
-        // HS256 requires a key of at least 256 bits (32 bytes).
-        // If the configured key is shorter, we pad it to 32 bytes to prevent weak key exceptions.
-        if (keyBytes.length < 32) {
-            byte[] paddedBytes = new byte[32];
-            System.arraycopy(keyBytes, 0, paddedBytes, 0, keyBytes.length);
-            for (int i = keyBytes.length; i < 32; i++) {
-                paddedBytes[i] = (byte) ('x' + i);
-            }
-            keyBytes = paddedBytes;
+        if (secretBytes.length < MIN_SECRET_BYTES) {
+            throw new IllegalArgumentException(
+                    "JWT_SECRET must be at least " + MIN_SECRET_BYTES + " bytes long");
         }
-        return Keys.hmacShaKeyFor(keyBytes);
+
+        this.signingKey = Keys.hmacShaKeyFor(secretBytes);
+        this.jwtExpirationInMs = jwtExpirationInMs;
     }
 
     public String generateToken(String userId) {
@@ -48,13 +44,13 @@ public class JwtTokenProvider {
                 .claim("id", userId)
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .signWith(signingKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public String getUserIdFromJWT(String token) {
         Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
+                .setSigningKey(signingKey)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -68,7 +64,7 @@ public class JwtTokenProvider {
     public boolean validateToken(String authToken) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
+                    .setSigningKey(signingKey)
                     .build()
                     .parseClaimsJws(authToken);
             return true;

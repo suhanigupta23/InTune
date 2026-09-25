@@ -1,20 +1,11 @@
 import os
 from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import torch
 from sentence_transformers import SentenceTransformer, util
 from typing import List
 
 app = FastAPI(title="InTune SBERT Similarity Service")
-
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # Load SBERT model on startup (approx. 90MB)
 model_name = "sentence-transformers/all-MiniLM-L6-v2"
@@ -26,9 +17,27 @@ class SimilarityRequest(BaseModel):
     anchor: str
     candidates: List[str]
 
+class EmbeddingRequest(BaseModel):
+    text: str
+
+class EmbeddingSimilarityRequest(BaseModel):
+    anchor_embedding: List[float]
+    candidate_embeddings: List[List[float]]
+
 @app.get("/")
 def read_root():
     return {"status": "healthy", "model": model_name}
+
+@app.post("/api/embedding")
+def generate_embedding(request: EmbeddingRequest):
+    if not request.text.strip():
+        return {"embedding": []}
+
+    try:
+        embedding = model.encode(request.text, convert_to_tensor=False).tolist()
+        return {"embedding": embedding, "model": model_name}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Embedding generation failed: {str(e)}")
 
 @app.post("/api/similarity")
 def calculate_similarity(request: SimilarityRequest):
@@ -61,6 +70,29 @@ def calculate_similarity(request: SimilarityRequest):
         return {"scores": scaled_scores}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"SBERT similarity check failed: {str(e)}")
+
+@app.post("/api/similarity/embeddings")
+def calculate_embedding_similarity(request: EmbeddingSimilarityRequest):
+    if not request.anchor_embedding:
+        return {"scores": [50.0] * len(request.candidate_embeddings)}
+
+    if not request.candidate_embeddings:
+        return {"scores": []}
+
+    try:
+        anchor_embedding = torch.tensor(request.anchor_embedding)
+        candidate_embeddings = torch.tensor(request.candidate_embeddings)
+        cosine_scores = util.cos_sim(anchor_embedding, candidate_embeddings)[0]
+
+        scaled_scores = []
+        for score in cosine_scores:
+            val = max(-1.0, min(1.0, float(score)))
+            shifted = (val + 1.0) / 2.0
+            scaled_scores.append(round(55.0 + (shifted * 43.0), 1))
+
+        return {"scores": scaled_scores}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Embedding similarity check failed: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
