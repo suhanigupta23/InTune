@@ -363,6 +363,21 @@ public class AuthController {
         String userA = currentUser.getId();
         String userB = request.getCandidateId();
 
+        if (userA.equals(userB)) {
+            return ResponseEntity.badRequest().body(Map.of("msg", "You cannot like yourself"));
+        }
+
+        Optional<User> candidateOpt = userRepository.findById(userB);
+        if (candidateOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("msg", "Candidate not found"));
+        }
+
+        if (!candidateOpt.get().isVerified()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("msg", "Candidate is not eligible for matching"));
+        }
+
         // Maintain consistent alphabetical sorting for unique matches table compound index
         String firstUser = userA.compareTo(userB) < 0 ? userA : userB;
         String secondUser = userA.compareTo(userB) < 0 ? userB : userA;
@@ -385,9 +400,7 @@ public class AuthController {
             if (userA.equals(firstUser)) match.setUserALiked(request.isLike());
             if (userA.equals(secondUser)) match.setUserBLiked(request.isLike());
 
-            if (match.isUserALiked() && match.isUserBLiked()) {
-                match.setStatus("matched");
-            }
+            match.setStatus(match.isUserALiked() && match.isUserBLiked() ? "matched" : "pending");
             match.setUpdatedAt(new Date());
         }
 

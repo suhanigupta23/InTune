@@ -151,7 +151,7 @@ const handleSignup = async (e: React.FormEvent) => {
       return;
     }
 
-    let extractedData = { gender: "Unknown" as any, isValid: false, maskedAadhaar: "", rawAadhaar: "" };
+    const extractedData = { gender: "Unknown" as any, isValid: false, maskedAadhaar: "", rawAadhaar: "" };
     try {
       setOcrLoading(true);
       const ocrRes = await processAadhaar(aadhaarFile);

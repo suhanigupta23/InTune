@@ -53,7 +53,9 @@ const OmniWidget = () => {
       widgetElements.forEach(el => {
         try {
           el.remove();
-        } catch (e) {}
+        } catch (e) {
+          // Some provider-created nodes may already be detached during cleanup.
+        }
       });
       
       delete (window as any).OmniDimension;
